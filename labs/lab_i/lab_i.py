@@ -32,6 +32,7 @@ Environment: Test your code using the level "Neo Labs > Lab I: Wall Follower".
 Use the "TAB" key to advance from checkpoint to checkpoint to practice each section before
 running through the race in "race mode" to do the full course. Lowest time wins!
 test triallll 
+other
 """
 
 ########################################################################################
