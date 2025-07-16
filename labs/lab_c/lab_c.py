@@ -7,7 +7,7 @@ File Name: lab_c.py
 
 Title: Lab C - RACECAR Controller
 
-Author: Kripa Sudhir << [Write your name or team name here]
+Author: Stuti J. 
 
 Purpose: Using a Python script and the data polled from the controller module,
 write code to replicate a manual control scheme for the RACECAR. Gain a mastery
@@ -63,8 +63,8 @@ def start():
 
     speed = 0.0 # The initial speed is at 1.0
     angle = 0.0 # The initial turning angle away from the center is at 0.0
-    speed_offset = 0.1 # The initial speed offset is 0.5
-    angle_offset = 0.1 # The inital angle offset is 1.0
+    speed_offset = 0.5 # The initial speed offset is 0.5
+    angle_offset = 1.0 # The inital angle offset is 1.0
 
     # This tells the car to begin at a standstill
     rc.drive.stop()
@@ -81,66 +81,52 @@ def update():
     # TODO Part 1: Modify the following conditional statement such that when the
     # right trigger is pressed, the RACECAR moves forward at the designated speed.
     # when the left trigger is pressed, the RACECAR moves backward at the designated speed.
-    if rc.controller.get_trigger(rc.controller.Trigger.RIGHT) == 0 \
-        and rc.controller.get_trigger(rc.controller.Trigger.LEFT) == 0:
+    if rc.controller.get_trigger(rc.controller.Trigger.RIGHT) > 0:
+        speed = 1
+    elif rc.controller.get_trigger(rc.controller.Trigger.LEFT) > 0:
+        speed = -1
+    else:
         speed = 0
-    
-
+      
     # TODO Part 2: Modify the following conditional statement such that when the
     # value of the left joystick's x-axis is greater than 0, the RACECAR's wheels turn right.
     # When the value of the left joystick's x-axis is less than 0, the RACECAR's wheels turn left.
     (x, y) = rc.controller.get_joystick(rc.controller.Joystick.LEFT)
-    if x == 0 \
-        and y == 0:
+    if x > 0:
+        angle = 1
+    elif x < 0:
+        angle = -1
+    else:
         angle = 0
-    
-    # if x > 0.5:
-    #     angle = 0.5
-    # elif x < -0.5:
-    #     angle = -0.5
-    # else:
-    #     angle = 0
 
     # TODO Part 3: Write a conditional statement such that when the
     # "A" button is pressed, increase the speed of the RACECAR. When the "B" button is pressed,
     # decrease the speed of the RACECAR. Print the current speed of the RACECAR to the
     # terminal window.
-
-    if rc.controller.get_trigger(rc.controller.Trigger.RIGHT) > 0 or rc.controller.get_trigger(rc.controller.Trigger.LEFT) > 0:
-        if rc.controller.was_pressed(rc.controller.Button.A):
-            speed += speed_offset
-        elif rc.controller.was_pressed(rc.controller.Button.B):
-            speed -= speed_offset
-        else:
-            pass
+    if rc.controller.is_down(rc.controller.Button.A):
+        if (speed < 1) and (speed > -0.1):
+            speed +=0.8
     
-    
-    if speed < -1 :
-        speed = -1
-    elif speed > 1:
-        speed = 1
-    else:
-        pass
+    if rc.controller.is_down(rc.controller.Button.B):
+        if (speed > -1) and (speed < 0.1):
+            speed -=0.8
 
+    print(f"Speed = {speed}")
 
     # TODO Part 4: Write a conditional statement such that when the
     # "X" button is pressed, increase the turning angle of the RACECAR. When the "Y" button 
     # is pressed, decrease the turning angle of the RACECAR. Print the current turning angle 
     # of the RACECAR to the terminal window.
-    if x > 0 or y > 0:
-        if rc.controller.was_pressed(rc.controller.Button.X):
-            angle+=angle_offset
-        elif rc.controller.was_pressed(rc.controller.Button.Y):
-            angle-=angle_offset
-    
-    if angle < -1:
-        angle = -1
-    elif angle > 1:
-        angle = 1
-    else:
-        pass
 
-    print(f"Speed: {speed}; Angle: {angle}")
+    if rc.controller.was_pressed(rc.controller.Button.X):
+        if angle < 1:
+            angle +=0.1
+    
+    elif rc.controller.was_pressed(rc.controller.Button.Y):
+        if angle > -1:
+            angle -=0.1
+
+    print(f"Angle = {angle}")
     # Send the speed and angle values to the RACECAR
     rc.drive.set_speed_angle(speed, angle)
 

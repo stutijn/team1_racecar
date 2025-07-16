@@ -3,17 +3,16 @@ MIT BWSI Autonomous RACECAR
 MIT License
 racecar-neo-prereq-labs
 
-File Name: controller_testing.py 
+File Name: controller_testing.py << [Modify with your own file name!]
 
-Title: Controller Testing 
+Title: Contorller Testing << [Modify with your own title]
 
-Author: Kripa Sudhir 
+Author: Stuti J << [Write your name or team name here]
 
-Purpose: To verify functions from the controller library and to 
-observe the output of these functions 
+Purpose: Verify functions from the controller library and observe output of such functions << [Write the purpose of the script here]
 
-Expected Outcome: Test button, trigger, and joystick commands to
-verify their target
+Expected Outcome: Test button, tirgger, and joystick commands to verify their output. 
+the script.]
 """
 
 ########################################################################################
@@ -49,14 +48,17 @@ def start():
 # is pressed  
 def update():
     if rc.controller.is_down(rc.controller.Button.A):
-        r_trigger = rc.controller.get_trigger(rc.controller.Trigger.RIGHT)
         l_trigger = rc.controller.get_trigger(rc.controller.Trigger.LEFT)
-        print(f"Left Trigger = {l_trigger} || Right Trigger = {r_trigger}") 
+        r_trigger = rc.controller.get_trigger(rc.controller.Trigger.RIGHT)
+        print(f"Left Trigger = {l_trigger} || Right Trigger = {r_trigger}")
+
     if rc.controller.is_down(rc.controller.Button.B):
-        (x, y) = rc.controller.get_joystick(rc.controller.Joystick.LEFT)
-        print(f"Left Joystick: x = {x}, y = {y}")
+        (x, y)= rc.controller.get_joystick(rc.controller.Joystick.RIGHT)
+        print(f"Right Joystick: x = {x}, y = {y}")
+
     if rc.controller.was_pressed(rc.controller.Button.X):
         print(f"The X button is pressed!")
+
     if rc.controller.was_released(rc.controller.Button.Y):
         print(f"The Y button is pressed!")
 

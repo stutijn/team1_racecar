@@ -48,15 +48,13 @@ rc = racecar_core.create_racecar()
 MIN_CONTOUR_AREA = 30
 
 # A crop window for the floor directly in front of the car
-CROP_FLOOR = ((400, 0), (rc.camera.get_height(), rc.camera.get_width()))
-# CROP_FLOOR = ((360, 0), (rc.camera.get_height(), rc.camera.get_width()))
+CROP_FLOOR = ((360, 0), (rc.camera.get_height(), rc.camera.get_width()))
 
 # TODO Part 1: Determine the HSV color threshold pairs for GREEN and RED
 # Colors, stored as a pair (hsv_min, hsv_max) Hint: Lab E!
-BLUE = ((90, 50, 50), (120, 255, 255))  # The HSV range for the color blue
-GREEN = ((35, 50, 50), (75, 255, 255))  # The HSV range for the color green
-RED = ((170, 50, 50), (5, 255, 255))  # The HSV range for the color red
-
+BLUE = ((90, 150, 50), (120, 255, 255))  # The HSV range for the color blue
+GREEN =  ((35,50,50),(85,255,255))  # The HSV range for the color green
+RED = ((170,50,50),(10,255,255))  # The HSV range for the color red
 
 # Color priority: Red >> Green >> Blue
 COLOR_PRIORITY = (RED, GREEN, BLUE)
@@ -64,7 +62,7 @@ COLOR_PRIORITY = (RED, GREEN, BLUE)
 # >> Variables
 speed = 0.0  # The current speed of the car
 angle = 0.0  # The current angle of the car's wheels
-contour_center = None  # The (pixel row (y), pixel column (x)) of contour
+contour_center = None  # The (pixel row, pixel column) of contour
 contour_area = 0  # The area of contour
 
 
@@ -72,35 +70,12 @@ contour_area = 0  # The area of contour
 # Functions
 ########################################################################################
 
-def remap_range(val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
-    old_range = old_max - old_min
-    new_range = new_max - new_min
-    return new_range * (float(val - old_min) / float(old_range)) + new_min
-
-def clamp(value: float, min: float, max: float) -> float:
-    if value < min:
-        return min
-    elif value > max:
-        return max
-    else:
-        return value
-    
-def bang_bang(line: int, setpoint: int) -> float:
-    angle = 0
-    error = setpoint - line
-    if error < 0:
-        angle = 1
-    elif error > 0:
-        angle = -1
-    else:
-        angle = 0
-    return angle
-
 # [FUNCTION] Finds contours in the current color image and uses them to update 
 # contour_center and contour_area
 def update_contour():
     global contour_center
     global contour_area
+    global colorset
 
     image = rc.camera.get_color_image()
 
@@ -110,42 +85,38 @@ def update_contour():
     else:
         # Crop the image to the floor directly in front of the car
         image = rc_utils.crop(image, CROP_FLOOR[0], CROP_FLOOR[1])
+        hsv_lower =()
+        hsv_upper = ()
+        hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
+        colorset = [RED, GREEN, BLUE]
         # TODO Part 2: Search for line colors, and update the global variables
         # contour_center and contour_area with the largest contour found
-
-        # Search for contours of the current color
-        contours_b = rc_utils.find_contours(image, BLUE[0], BLUE[1])
-        contours_r = rc_utils.find_contours(image, RED[0], RED[1])
-        contours_g = rc_utils.find_contours(image, GREEN[0], GREEN[1])
-        lrg_contour_b = rc_utils.get_largest_contour(contours_b, MIN_CONTOUR_AREA)
-        lrg_contour_r = rc_utils.get_largest_contour(contours_r, MIN_CONTOUR_AREA)
-        lrg_contour_g = rc_utils.get_largest_contour(contours_g, MIN_CONTOUR_AREA)
-
-        if lrg_contour_r is not None:
-            contour_center = rc_utils.get_contour_center(lrg_contour_r)
-            contour_area = rc_utils.get_contour_area(lrg_contour_r)
-        elif lrg_contour_g is not None:
-            contour_center = rc_utils.get_contour_center(lrg_contour_g)
-            contour_area = rc_utils.get_contour_area(lrg_contour_g)
-        elif lrg_contour_b is not None:
-            contour_center = rc_utils.get_contour_center(lrg_contour_b)
-            contour_area = rc_utils.get_contour_area(lrg_contour_b)
         
-            rc_utils.draw_circle(image, contour_center)
+        for color in colorset:
+            print(f"COLOR {color[0][0]}")
+            contours = rc_utils.find_contours(image,color[0],color[1])
+            #contours = rc_utils.find_contours(image,color[0],color[1]) #searches for all contours of current color
+            
+            contour = rc_utils.get_largest_contour(contours, MIN_CONTOUR_AREA) #select largest contour
+            if contour is not None:
+                contour_center = rc_utils.get_contour_center(contour)
+                contour_area= rc_utils.get_contour_area(contour)
+                rc_utils.draw_contour(image,contour)
+           # rc_utils.draw_cirlce(image,contour_center)
         # Display the image to the screen
-        rc.display.show_color_image(image)
+            rc.display.show_color_image(image)
 
 # [FUNCTION] The start function is run once every time the start button is pressed
 def start():
     global speed
+    global max_speed
     global angle
-    global speed_offset
-    speed_offset = 0.1 # The initial speed offset is 0.5
-    
+
     # Initialize variables
     speed = 0
     angle = 0
+    max_speed = 0.09
 
     # Set initial driving speed and angle
     rc.drive.set_speed_angle(speed, angle)
@@ -174,37 +145,8 @@ def update():
     """
     global speed
     global angle
-    if contour_center is not None:
-        setpoint = rc.camera.get_width() // 2
-        present_value = contour_center[1]
-        kp = 0.003125
-        error = present_value - setpoint # setpoint - present_value
-        angle = kp * error
-        angle = rc_utils.clamp(angle, -1, 1)
-    elif contour_center is None:
-        angle = 0
+    global max_speed
 
-    if rc.controller.get_trigger(rc.controller.Trigger.RIGHT) > 0:
-        speed = 1
-    elif rc.controller.get_trigger(rc.controller.Trigger.LEFT) > 0:
-        speed = -1
-    # if rc.controller.get_trigger(rc.controller.Trigger.RIGHT) > 0 or rc.controller.get_trigger(rc.controller.Trigger.LEFT) > 0:
-    #     if rc.controller.was_pressed(rc.controller.Button.A):
-    #         speed += speed_offset
-    #     elif rc.controller.was_pressed(rc.controller.Button.B):
-    #         speed -= speed_offset
-    #     else:
-    #         pass
-    
-    
-    if speed < -1 :
-        speed = -1
-    elif speed > 1:
-        speed = 1
-    else:
-        pass
-
-    rc.drive.set_speed_angle(speed, angle)
     # Search for contours in the current color image
     update_contour()
 
@@ -215,8 +157,12 @@ def update():
     # Choose an angle based on contour_center
     # If we could not find a contour, keep the previous angle
     if contour_center is not None:
-        # angle = _____
-        pass
+        setpoint = rc.camera.get_width() //2
+        present_value = contour_center[1]
+        kp = -0.003125
+        error = setpoint - present_value
+        angle = kp*error
+        rc_utils.clamp(angle,-1,1)
 
     # Use the triggers to control the car's speed
     rt = rc.controller.get_trigger(rc.controller.Trigger.RIGHT)
@@ -236,6 +182,13 @@ def update():
         else:
             print("Center:", contour_center, "Area:", contour_area)
 
+def clamp(value:float, min: float, max: float):
+    if value < min:
+        return min
+    elif value > max:
+        return max
+    else: 
+        return value
 # [FUNCTION] update_slow() is similar to update() but is called once per second by
 # default. It is especially useful for printing debug messages, since printing a 
 # message every frame in update is computationally expensive and creates clutter

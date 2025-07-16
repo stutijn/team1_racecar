@@ -83,7 +83,7 @@ def update():
             # Turn right at full speed for the next second
             rc.drive.set_speed_angle(1, 1)
         elif counter < 3:
-            # Turn left at full speed for the next second
+            #Turn left at full speed for the next second
             rc.drive.set_speed_angle(1, -1)
         else:
             # Otherwise, stop the car

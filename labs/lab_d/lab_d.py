@@ -7,7 +7,7 @@ File Name: lab_d.py
 
 Title: Lab D - Driving in Mazes
 
-Author: Kripa Sudhir
+Author: Stuti 
 
 Purpose: Create a script to enable semi-autonomous driving for the RACECAR. Button presses
 enable a series of instructions sent to the RACECAR, which enable it to drive in various shapes.
@@ -34,8 +34,6 @@ import racecar_core
 
 ########################################################################################
 # Global variables
-speed = 0
-angle = 0
 ########################################################################################
 
 rc = racecar_core.create_racecar()
@@ -43,6 +41,8 @@ rc = racecar_core.create_racecar()
 # A queue of driving steps to execute
 # Each entry is a list containing (time remaining, speed, angle)
 queue = []
+speed = 0
+angle = 0
 
 
 ########################################################################################
@@ -74,8 +74,7 @@ def start():
 # is pressed  
 def update():
     global queue
-    global speed
-    global angle
+
     # When the A button is pressed, add instructions to drive through the obstacle "Zigzag"
     if rc.controller.was_pressed(rc.controller.Button.A):
         drive_zigzag()
@@ -95,6 +94,7 @@ def update():
     # TODO Part 1: Analyze the following code segment that executes instructions from the queue.
     # Fill in the blanks with the missing variable assignments and indicies according to the
     # behavior described by the comment below.
+
     # If the queue is not empty, follow the current drive instruction
     if len(queue) > 0:
         speed = queue[0][1]
@@ -102,8 +102,12 @@ def update():
         queue[0][0] -= rc.get_delta_time()
         if queue[0][0] <= 0:
             queue.pop(0)
-
+    
+    else:
+        speed = 0
+        angle = 0
     # Send speed and angle commands to the RACECAR
+    print(queue)
     rc.drive.set_speed_angle(speed, angle)
 
 
@@ -111,45 +115,44 @@ def update():
 # inside of the queue that cause the RACECAR to drive in the zigzag
 def drive_zigzag():
     global queue
-    global speed
-    global angle
-    # Use this section to define and tune static variables
+
+    zigzag_time = 6
+    brake_time = 0.5
 
     queue.clear()
 
+    queue.append([2.25,1,0])
+    queue.append([1.25,1,1])
+    queue.append([0.75,1,0])
+    queue.append([1.25,1,-1])
+    queue.append([0.5,1,0])
     # TODO Part 2: Append the correct variables in the correct order in order
     # for the RACECAR to drive in the "Zigzag" obstacle course
     # [Hint] queue.append([time, speed, angle])
-    queue.append([2, 1, 0])
-    queue.append([1.2, 1, 1])
-    queue.append([1, 1, 0])
-    queue.append([1.1, 1, -1])
-    queue.append([0.35, 1, 0])
-    queue.append([0.5, 0, 0])
 
 
 # [FUNCTION] When the function is called, clear the queue, then place instructions
 # inside of the queue that cause the RACECAR to drive in the spiral
 def drive_spiral():
     global queue
-
+    spiral_time = 17.25
+    brake_time = 0.5
     # Use this section to define and tune static variables
 
     queue.clear()
 
+    queue.append([3.5,1,0]) #straight
+    queue.append([1.25,1,1]) #turn right
+    queue.append([3.5,1,0]) #keep right
+    queue.append([1.25,1,1]) #turn right (again), going down now
+    queue.append([2.75,1,0]) #keep right 
+    queue.append([1.25,1,1]) #turn right (again), going left now
+    queue.append([1.75,1,0]) #keep right
+    queue.append([1.25,1,1]) #turn right (again), going up now
+    queue.append([.25,1,0]) #keep right
     # TODO Part 3: Append the instructions into the queue that represent the RACECAR
     # driving in the "Spiral" obstacle course
-    queue.append([3.25, 1, 0])
-    queue.append([1.25, 1, 1])
-    queue.append([3.5, 1, 0])
-    queue.append([1.25, 1, 1])
-    queue.append([2.85, 1, 0])
-    queue.append([1.25, 1, 1])
-    queue.append([1.65, 1, 0])
-    queue.append([1.15, 1, 1])
-    queue.append([0.25, 1, 0])
-    queue.append([0.5, 0, 0])
-
+    
 # [FUNCTION] When the function is called, clear the queue, then place instructions 
 # inside of the queue that cause the RACECAR to drive through the hallway
 def drive_hallway():
@@ -158,83 +161,23 @@ def drive_hallway():
     # TODO Part 4: Create constants that represent the RACECAR driving through
     # the "Hallway" obstacle course, and then append the instructions in the
     # correct order into the queue for execution
+    rotation = 3
 
-
-    queue.clear()
-
-    queue.append([0.5, 1, 0.4])
-    queue.append([1, 1, 0])
-    queue.append([1, 1, -0.45])
-    queue.append([0.7, 1, 0])
-    queue.append([0.85, 1, 0.75])
-    queue.append([0.6, 1, 0])
-    queue.append([0.9, 1, -0.925])
-    queue.append([0.25, 1, 0])
-    queue.append([.95, 1, 0.95])
-    queue.append([.4, 1, 0])
-    queue.append([1.2, 1, -0.55])
-    queue.append([.5, 0.6, 0])
-    queue.append([.25, 0.5, 0.75])
-
-    # queue.append([0.75, 1, 0])
-    # queue.append([1, 1, 0.4]) # first cone
-    # queue.append([0.5, 0.5, -0.65])
-    # queue.append([0.35, 1, 0])
-
-    # queue.append([1.25, 1, -0.4])
-    # queue.append([0.75, 0.5, 0.7])
-    # queue.append([0.35, 1, 0])
-    # queue.append([1.1, 1, 0.4])
-    # queue.append([0.7, 0.5, -0.7])
-    # 
-    # queue.append([1.75, 0.5, -0.6])
-    # queue.append([1.5, 0.5, 0.65])
-    #--
-    # queue.append([1.3, 1, -0.5]) # second cone
-    # queue.append([0.65, 0.5, 0.65])
-    # queue.append([0.5, 0, 0])
-    # queue.append([1.3, 1, .6]) # third cone
-    # queue.append([0.65, 0.5, -0.75])
-    # queue.append([0.5, 0, 0])
-    # queue.append([1.3, 1, -.6]) # fourth cone
-    # queue.append([.5, 0.5, 0.6])
-    # queue.append([0.5, 0, 0])
-    # END BREAK HERE
-    # queue.append([1, 1, -0.45])
-    # queue.append([1, 1, 0])
-    # queue.append([1, 1, -1])
-    # queue.append([1, 1, 0.45])
-    # queue.append([1, 1, 0])
-    # END BREAK HERE
-    # queue.append([1, 1, 1])
-    # queue.append([1, 1, -0.45])
-    # queue.append([1, 1, 0])
-    # queue.append([1, 1, -1])
-    # queue.append([1, 1, 0.45])
-    # queue.append([1, 1, 0])
-    # END BREAK HERE
-    # queue.append([0.5, 1, 1]) #first cone
-    # queue.append([2, 1, 0])
-    # queue.append([0.5, 0.5, -0.25]) #second cone
-    # queue.append([0.5, 1, -0.55])
-    # queue.append([.8, 1, 0])
-    # queue.append([0.5, 1, 0.65]) #third cone
-    # queue.append([0.5, 0, 0.75])
-    # queue.append([0.75, 1, 0])
-    # queue.append([0.6, 0.5, -0.9]) #fourth cone
-    # queue.append([0.55, 0.5, -0.9])
-    # queue.append([0.6, 1, 0])
-    # queue.append([0.55, 1, 0.9]) #fifth cone
-    # queue.append([0.55, 0.5, .9])
-    # queue.append([2, 0, 0])
-    # queue.append([1.45, 1, -1])
-    # queue.append([1.25, 1, 0])
-    queue.append([0.5, 0, 0])
-    """ queue.append([0.6, 1, 0])
-    queue.append([0.75, 1, -1])
-    queue.append([1.1, 1, 0])
-    queue.append([0.5, 0, 0]) 
- """
+    for x in range (rotation):
+        queue.clear()
+        queue.append([1.5,1,0]) #straight
+        queue.append([.5,0.5,1]) #right
+        queue.append([1.5,0.5,-1]) #left, cone set 1 over
+        queue.append([.6,0.5,1]) #right
+        queue.append([1,1,0]) #straight
+        queue.append([1,0.5,1]) #right cone 2 over
+        queue.append([.27,0.5,0]) #straight
+        queue.append([1.50,0.5,-1]) #left, cone set 3 over
+        queue.append([1,0.5,0]) #straight
+        queue.append([.27,0.5,1]) #right
+        queue.append([0.25,0.5,0]) #straight
+        queue.append([.25,0.5,1]) #right
+        queue.append([1,0.5,0]) #straight
 
 
 # [FUNCTION] When the function is called, clear the queue, then place instructions 
@@ -248,33 +191,30 @@ def drive_maze():
 
     queue.clear()
 
-    queue.append([5, 1, 0])
-    queue.append([1.2, 1, -1]) # first turn
-    queue.append([2.5, 1, 0])
-    queue.append([1, 0.75, -1]) # second turn
-    queue.append([4, -0.5, 0.5]) # back up
-    queue.append([1.2, 1, 0])
-    queue.append([1.75, 1, -1]) # turn again
-    queue.append([1.5, 1, 0])
-    queue.append([1, 1, 1]) # third turn
-    queue.append([4, -0.5, 0]) # back up
-    queue.append([3, 1, 1]) # turn again
-    queue.append([0.75, 1, 0])
-    queue.append([1.25, 0.75, -1]) # fourth turn
-    queue.append([0.75, 1, 0])
-    queue.append([1.5, 0.75, 1]) # fifth turn
-    queue.append([2.25, -1, 0]) # back up
-    queue.append([3.15, 1, 1]) # turn again
-    queue.append([0.75, 1, 0])
-    queue.append([1.25, 1, -1]) # sixth turn
-    queue.append([2.25, -1, 0]) # back up
-    queue.append([3.35, 1, -1]) # turn again
-    queue.append([3, 1, 0])
+    queue.append([5.5,1,0]) #straight
+    queue.append([1.25,1,-1]) #turn left
+    queue.append([2.5,1,0]) #keep left
+    queue.append([1.8,.25,-1]) #turn left, going down
+    queue.append([3,-.5,0]) #go straight backwards
+    queue.append([9,.25,-1]) #turn left, going down + right
+    queue.append([2,1,0]) #keep right
+    queue.append([4.25,.55,1]) #turn right, going down now
+    queue.append([6,.25,-1]) #turn left, going down 
+    queue.append([3,.5,1]) #turn right, going down now
+    queue.append([3,-.5,0]) #straight back
+    queue.append([10.5,.25,1]) #turn right, going doupwn now
+    queue.append([1.25,0.5,0]) #straight
+    queue.append([5,.35,-1]) #turn left, going down 
+    queue.append([1.25,-.5,0]) #straight back
+    queue.append([5,.25,-1]) #turn left, going down 
+    queue.append([6,1,0]) #straight
+   # queue.append([1.25,1,1]) #turn right (again), going left now
+    #queue.append([1,1,0]) #keep left
+    #queue.append([1.25,1,-1]) #turn right (again), going left now
+    #queue.append([1,1,0]) #keep left
+    #queue.append([1.25,1,1]) #turn right (again), going left now
+    #queue.append([1,1,0]) #keep left
 
-
-    
-
-    queue.append([0.5, 0, 0])
 ########################################################################################
 # DO NOT MODIFY: Register start and update and begin execution
 ########################################################################################

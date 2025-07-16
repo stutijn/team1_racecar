@@ -3,16 +3,15 @@ MIT BWSI Autonomous RACECAR
 MIT License
 racecar-neo-prereq-labs
 
-File Name: hello_racecar.py << [Modify with your own file name!]
+File Name: template.py << [Modify with your own file name!]
 
-Title: [Hello Racecar] << [Modify with your own title]
+Title: [PLACEHOLDER] << [Modify with your own title]
 
-Author: [Stuti J.] << [Write your name or team name here]
+Author: [PLACEHOLDER] << [Write your name or team name here]
 
-Purpose: [practice print in terminal] << [Write the purpose of the script here]
+Purpose: [PLACEHOLDER] << [Write the purpose of the script here]
 
-Expected Outcome: [print "Hello RACECAR! in start(), update(), and update_slow() 
-fucntions to see output in terminal] << [Write what you expect will happen when you run
+Expected Outcome: [PLACEHOLDER] << [Write what you expect will happen when you run
 the script.]
 """
 
@@ -24,7 +23,7 @@ import sys
 
 # If this file is nested inside a folder in the labs folder, the relative path should
 # be [1, ../../library] instead.
-sys.path.insert(1, '../../library')
+sys.path.insert(0, '../library')
 import racecar_core
 
 ########################################################################################
@@ -32,7 +31,6 @@ import racecar_core
 ########################################################################################
 
 rc = racecar_core.create_racecar()
-name = ("sj")
 
 # Declare any global variables here
 
@@ -43,19 +41,19 @@ name = ("sj")
 
 # [FUNCTION] The start function is run once every time the start button is pressed
 def start():
-    #print("Hello RACECAR!") # Remove 'pass' and write your source code for the start() function here
-    pass
+    pass # Remove 'pass' and write your source code for the start() function here
+
 # [FUNCTION] After start() is run, this function is run once every frame (ideally at
 # 60 frames per second or slower depending on processing speed) until the back button
 # is pressed  
 def update():
-    #print("Hello RACECAR!") # Remove 'pass' and write your source code for the update() function here
-    pass 
+    pass # Remove 'pass' and write your source code for the update() function here
+
 # [FUNCTION] update_slow() is similar to update() but is called once per second by
 # default. It is especially useful for printing debug messages, since printing a 
 # message every frame in update is computationally expensive and creates clutter
 def update_slow():
-    print("Greetings" + name + "!") # Remove 'pass and write your source code for the update_slow() function here
+    pass # Remove 'pass and write your source code for the update_slow() function here
 
 
 ########################################################################################

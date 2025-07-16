@@ -59,16 +59,16 @@ rc = racecar_core.create_racecar()
 
 # >> Constants
 # The smallest contour we will recognize as a valid contour (Adjust threshold!)
-MIN_CONTOUR_AREA = ___
+MIN_CONTOUR_AREA = 36
 
 # TODO Part 1: Determine the HSV color threshold pairs for ORANGE, GREEN, RED, YELLOW, and PURPLE
 # Colors, stored as a pair (hsv_min, hsv_max)
-BLUE = ((90, 50, 50), (120, 255, 255))  # The HSV range for the color blue
-GREEN = _____  # The HSV range for the color green
-RED = _____  # The HSV range for the color red
-ORANGE = _____ # The HSV range for the color orange
-YELLOW = _____ # The HSV range for the color yellow
-PURPLE = _____ # The HSV range for the color purple
+BLUE = ((100, 150, 100), (120, 255, 255))  # The HSV range for the color blue
+GREEN =  ((35,50,50),(85,255,255))  # The HSV range for the color green
+RED = ((170,50,50),(10,255,255))  # The HSV range for the color red
+ORANGE = ((10,50,50),(20,255,255)) # The HSV range for the color orange
+YELLOW = ((25,100,100),(35,255,255)) # The HSV range for the color yellow
+PURPLE = ((140,50,50),(160,255,255)) # The HSV range for the color purple
 
 # >> Variables
 contour_center = None  # The (pixel row, pixel column) of contour
@@ -86,21 +86,42 @@ stoplight_color = "" # The current color of the stoplight
 def update_contour():
     global contour_center
     global contour_area
+    global colorset
+    global stoplight_color
 
     image = rc.camera.get_color_image()
+    colorset = [((BLUE),"BLUE"), ((GREEN),"GREEN"),((RED),"RED"),((ORANGE),"ORANGE"),((YELLOW),"YELLOW"),((PURPLE),"PURPLE")]
 
     if image is None:
         contour_center = None
         contour_area = 0
+        stoplight_color = ""
+
+    max_area = 0
+    largest_contour = None
+    largest_color = ""
+
+    for hsv_range, color_name in colorset:
+        contours = rc_utils.find_contours(image, hsv_range[0], hsv_range[1])
+        contour = rc_utils.get_largest_contour(contours, MIN_CONTOUR_AREA)
+        if contour is not None:
+            area = rc_utils.get_contour_area(contour)
+            if area > max_area:
+                max_area = area
+                largest_contour = contour
+                largest_color = color_name
+
+    if largest_contour is not None:
+        contour_center = rc_utils.get_contour_center(largest_contour)
+        contour_area = max_area
+        stoplight_color = largest_color
+        rc_utils.draw_contour(image, largest_contour)
     else:
-        # TODO Part 2: Search for line colors, and update the global variables
-        # contour_center and contour_area with the largest contour found
+        contour_center = None
+        contour_area = 0
+        stoplight_color = ""
 
-        # TODO Part 3: Repeat the search for all potential traffic light colors,
-        # then select the correct color of traffic light detected.
-
-        # Display the image to the screen
-        rc.display.show_color_image(image)
+    rc.display.show_color_image(image)
 
 # [FUNCTION] The start function is run once every time the start button is pressed
 def start():
@@ -125,20 +146,38 @@ def start():
 # is pressed  
 def update():
     global queue
+    global speed
+    global angle
+    speed = 0
+    angle = 0
 
     update_contour()
 
     # TODO Part 2: Complete the conditional tree with the given constraints.
-    if stoplight_color == "_____":
-        # Call the correct function to append the instructions to the list
-    elif stoplight_color == "_____":
-        # Call the correct function to append the instructions to the list
     
-    # ... You may need more elif/else statements
+    # Only add instructions if we're close to the light and the queue is empty
+    if contour_center and contour_area > 1500 and len(queue) == 0:
+        if stoplight_color == "BLUE":
+            turnRight()
+        elif stoplight_color == "ORANGE":
+            turnLeft()
+        elif stoplight_color == "GREEN":
+            goStraight()
+        elif stoplight_color == "RED":
+            stopNow()
+        else:
+            stopNow()
 
     # TODO Part 3: Implement a way to execute instructions from the queue once they have been placed
     # by the traffic light detector logic (Hint: Lab 2)
 
+    if len(queue) > 0:
+        speed = queue[0][1]
+        angle = queue[0][2]
+        queue[0][0] -= rc.get_delta_time()
+        if queue[0][0] <= 0:
+            queue.pop(0)
+        
     # Send speed and angle commands to the RACECAR
     rc.drive.set_speed_angle(speed, angle)
 
@@ -156,18 +195,27 @@ def update():
 # [FUNCTION] Appends the correct instructions to make a 90 degree right turn to the queue
 def turnRight():
     global queue
+    queue.append([3.3, 0.5, 0])  # approach (time, speed, angle)
+    queue.append([1.8, 0.75, 1])   # start turning
+    queue.append([.5, 0.5, 0])   # straighten
+    queue.append([.15, 0.5, 1])   # straighten right
+
 
     # TODO Part 4: Complete the rest of this function with the instructions to make a right turn
 
 # [FUNCTION] Appends the correct instructions to make a 90 degree left turn to the queue
 def turnLeft():
     global queue
-
+    queue.append([3.4,0.5,0])
+    queue.append([1.8, 0.75, -1])   # start turning
+    queue.append([.5, 0.5, 0])   # straighten
+    queue.append([.1, 0.5, -.75])   # straighten left
     # TODO Part 5: Complete the rest of this function with the instructions to make a left turn
 
 # [FUNCTION] Appends the correct instructions to go straight through the intersectionto the queue
 def goStraight():
     global queue
+    queue.append([3.9,.85,0]) #straight
 
     # TODO Part 6: Complete the rest of this function with the instructions to make a left turn
 
@@ -175,7 +223,8 @@ def goStraight():
 def stopNow():
     global queue
     queue.clear()
-
+def update_slow():
+    pass
 ########################################################################################
 # DO NOT MODIFY: Register start and update and begin execution
 ########################################################################################

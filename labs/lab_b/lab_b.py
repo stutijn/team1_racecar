@@ -7,7 +7,7 @@ File Name: lab_b.py
 
 Title: Lab B - Printing Statements Using Controller
 
-Author: Kripa Sudhir
+Author: Stuti J << [Write your name or team name here]
 
 Purpose: Print several statements to the terminal window from the update() function
 and gain an understanding of how to poll data from the controller. Complete the lines of
@@ -58,8 +58,8 @@ def start():
 
     # TODO Part 1: Modify the variable below to your name. Modify the print statement,
     # such that when run, the program prints "Hello {your name}, welcome to RACECAR!"
-    your_name = "Kripa"
-    print(f"Hello {your_name}, welcome to RACECAR!")
+    your_name = ("stuti j")
+    print(f"Welcome {your_name}, welcome to RACECAR!")
 
 # [FUNCTION] After start() is run, this function is run once every frame (ideally at
 # 60 frames per second or slower depending on processing speed) until the back button
@@ -83,14 +83,15 @@ def update():
     # The script should continue printing time updates if the button is held down. 
     # Round the time to 2 decimal places.
     if rc.controller.is_down(rc.controller.Button.X):
-        print(f"The current script has been running for {round(counter, 2)} seconds!")
+        print(f"The current script has been running for {counter} seconds!")
 
     # TODO Part 5: Create an if statement below to print out the current elapsed
     # time of the script to the terminal window in seconds when the Y button is pressed.
     # The script should only print out the time once after the button has been pressed, 
     # regardless if it is held down or not. Round the time to 2 decimal places.
     if rc.controller.was_pressed(rc.controller.Button.Y):
-        print(f"The current script has been running for {round(counter, 2)} seconds!")
+        print(f"The current script has been running for {round(counter,2)} seconds!")
+    
 
 ########################################################################################
 # DO NOT MODIFY: Register start and update and begin execution

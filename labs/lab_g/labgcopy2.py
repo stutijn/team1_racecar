@@ -7,7 +7,7 @@ File Name: lab_g.py
 
 Title: Lab G - Autonomous Parking
 
-Author: [PLACEHOLDER] << [Write your name or team name here]
+Author: [stuti] << [Write your name or team name here]
 
 Purpose: This script provides the RACECAR with the ability to autonomously detect an orange
 cone and then drive and park 30cm away from the cone. Complete the lines of code under the 
@@ -49,8 +49,12 @@ rc = racecar_core.create_racecar()
 # The smallest contour we will recognize as a valid contour
 MIN_CONTOUR_AREA = 30
 
+# A crop window for the floor directly in front of the car
+CROP_FLOOR = ((360, 0), (rc.camera.get_height(), rc.camera.get_width()))
+
 # TODO Part 1: Determine the HSV color threshold pairs for ORANGE
-ORANGE = _____  # The HSV range for the color ORANGE
+# Colors, stored as a pair (hsv_min, hsv_max) 
+ORANGE = ((10,100,100),(25,255,255))
 
 # >> Variables
 speed = 0.0  # The current speed of the car
@@ -58,6 +62,12 @@ angle = 0.0  # The current angle of the car's wheels
 contour_center = None  # The (pixel row, pixel column) of contour
 contour_area = 0  # The area of contour
 
+
+state = "searching"
+PARKING_DISTANCE = 49.25  # in cm
+SLOW_ZONE = 70.0                # Start slowing down here
+DIST_TOLERANCE = 0.75           # Acceptable range (e.g. 27-33 cm)
+BACKING_THRESHOLD = 48.9        # If we get closer than this, back up
 
 ########################################################################################
 # Functions
@@ -75,6 +85,24 @@ def update_contour():
     # analyzing for contours of interest, and returning the center of the contour and the
     # area of the contour for the color of line we should follow (Hint: Lab 3)
 
+    if image is None:
+        contour_center = None
+        contour_area = 0
+    else:
+        hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+                                           
+        contours = rc_utils.find_contours(hsv,ORANGE[0],ORANGE[1]) #searches for all contours of current color
+
+        contour = rc_utils.get_largest_contour(contours, MIN_CONTOUR_AREA) #select largest contour
+        if contour is not None:
+            contour_center = rc_utils.get_contour_center(contour)
+            contour_area= rc_utils.get_contour_area(contour)
+            rc_utils.draw_contour(image,contour)
+          
+        # Display the image to the screen
+            rc.display.show_color_image(image)
+
+    rc.display.show_color_image(image)
 
 # [FUNCTION] The start function is run once every time the start button is pressed
 def start():
@@ -107,6 +135,7 @@ def start():
 def update():
     global speed
     global angle
+    global state
 
     # Search for contours in the current color image
     update_contour()
@@ -116,8 +145,60 @@ def update():
     # or LIDAR to do so). Depth camera is not allowed at this time to match the
     # physical RACECAR Neo.
 
+                              #tuple accepting SCAN and degrees, returns (angle,distance)
+    scan = rc.lidar.get_samples_async()
+    closest_point  = rc_utils.get_lidar_closest_point(scan, [0,360])
+
+    distance = closest_point[1]
+
+    # State machine logic
+    if contour_center is None:
+        state = "searching"
+
+    else: 
+        if abs(distance - PARKING_DISTANCE) <= DIST_TOLERANCE:
+            state = "parking"
+        elif distance < BACKING_THRESHOLD: #if closer than 25 cm, back away
+            state = "backing"
+        elif distance <= SLOW_ZONE: #if under 60 cm away
+            state = "approaching_slow"
+        else:
+            state = "approaching_fast"
+    if abs(distance - PARKING_DISTANCE) <= DIST_TOLERANCE:
+            state = "parking"
+    print (state)
+    print(distance)
+    
+    # Control logic
+    if state == "searching":
+        speed = 0.5
+        angle = 1.0  # slowly rotate to searcg
+
+    elif state == "approaching_slow":
+        speed = 0.1
+        angle = rc_utils.clamp((contour_center[1] - rc.camera.get_width() // 2) / 100, -1, 1)
+        #angle calculator: contour_center[1] — the x-coordinate (column) of the cone in the image.
+        #rc.camera.get_width() // 2 — the center x-position of the image.
+        #Subtracting these gives you the offset from the center.
+        #Dividing by 100 scales that offset into a reasonable steering angle range (~-1 to 1).
+
+    elif state == "approaching_fast":
+        speed = 0.25
+        angle = rc_utils.clamp((contour_center[1] - rc.camera.get_width() // 2) / 100, -1, 1)
+
+    elif state == "backing":
+        speed = -0.25
+        angle = rc_utils.clamp((contour_center[1] - rc.camera.get_width() // 2) / 100, -1, 1)
+
+    elif state == "parking":
+        speed = 0
+        angle = 0
+
+    rc.drive.set_speed_angle(speed, angle)
+
     # Set the speed and angle of the RACECAR after calculations have been complete
     rc.drive.set_speed_angle(speed, angle)
+
 
     # Print the current speed and angle when the A button is held down
     if rc.controller.is_down(rc.controller.Button.A):

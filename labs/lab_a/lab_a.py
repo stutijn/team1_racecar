@@ -7,7 +7,7 @@ File Name: lab_a.py
 
 Title: Lab A - Printing Statements
 
-Author: Kripa Sudhir
+Author: [PLACEHOLDER] << [Write your name or team name here]
 
 Purpose: Print several statements to the terminal window and gain an understanding
 of how the start(), update() and update_slow() function work. Complete the lines of
@@ -53,16 +53,16 @@ def start():
     # TODO Part 1: Write a print statement that will print "Hello World!" to the terminal 
     # window
     # print("______")
-    print("Hello World!")
+
     # TODO Part 2: Write a print statement that will print the sum of 523 + 910 to the 
     # terminal window. Use Python to calculate the sum and automatically insert it into
     # the print statmenet using an f string.
     # print(f"The sum of 523 + 910 is: {_____}")
-    print(f"The sum of 523 and 910 is: {523 + 910}")
+
     # TODO Part 3: Modify the variable below to your name. Modify the print statement,
     # such that when run, the program prints "Hello {your name}, welcome to RACECAR!"
-    your_name = "Kripa"
-    print(f"Hello {your_name}, welcome to RACECAR!")
+    your_name = "_____"
+    # print(_____)
 
 # [FUNCTION] After start() is run, this function is run once every frame (ideally at
 # 60 frames per second or slower depending on processing speed) until the back button
@@ -75,7 +75,7 @@ def update():
     # "{counter} seconds have passed since the program started!"
     counter += rc.get_delta_time()
     # Uncomment this line of code when you are ready to test
-    print(f"{counter} seconds have passed since the program started.")
+    # print(_____)
 
 
 # [FUNCTION] update_slow() is similar to update() but is called once per second by
@@ -88,9 +88,9 @@ def update_slow():
     # screen 60 times a second! (approximately) Modify the print statement below to
     # print the elapsed time of the program and round the value of "counter" to 1 digit.
     # Python round() function syntax: round(value, digits)
-    print(f"{round(counter, 1)} seconds have passed since the program started.")
+    # print(_____)
     
-    # pass # Comment out this line when you are ready to test Part 5!
+    pass # Comment out this line when you are ready to test Part 5!
 
 
 ########################################################################################
