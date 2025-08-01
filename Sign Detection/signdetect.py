@@ -41,7 +41,7 @@ rc = racecar_core.create_racecar()
 
 # Declare any global variables here
 default_path = 'signs' # location of model weights and labels
-model_name = 'signs.tflite'
+model_name = 'signdetected.tflite'
 label_name = 'objects.txt'
 
 model_path = default_path + "/" + model_name
