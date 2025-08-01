@@ -9,7 +9,7 @@ Title: Wall Follower
 
 Author: TEAM 1
 
-Purpose: Find a setpoint between two walls and drive between them by maintaining setpoint. 
+Purpose: Find a setpoint between two walls and drive between them by maintaining setpoint using PID control. 
 """
 
 ########################################################################################
