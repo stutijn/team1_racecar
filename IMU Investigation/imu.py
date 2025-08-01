@@ -15,8 +15,8 @@ be used for autonomous navigation. It is recommended to review the equations of
 motion and axes directions for the RACECAR Neo platform before starting. Template
 code has been provided for the implementation of a Complementary Filter.
 
-Expected Outcome: Subscribe to the /imu and /mag topics, and publish to the /attitude
-topic with accurate attitude estimations.
+Expected Outcome: Subscribe to the /imu and /mag topics, and publish to the /attitude, 
+/velocity, and /pose_estimate topics with accurate attitude estimations.
 """
 
 # run this straight in JupyterNB or using an external adapter specifically 
