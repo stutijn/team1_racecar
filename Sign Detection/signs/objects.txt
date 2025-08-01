@@ -1,0 +1,10 @@
+Stop
+One way left
+one way right
+DNE
+Fake stop
+yield
+fake yield
+go around
+do not go around
+Car
